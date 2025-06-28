@@ -7,7 +7,8 @@ import { Card } from "@/components/ui/card";
 import Image from "next/image";
 import { useState, useEffect } from "react";
 import { Carousel, CarouselContent, CarouselItem, CarouselNext, CarouselPrevious } from "@/components/ui/carousel";
-import { motion, useMotionValue, useTransform, useAnimation } from "framer-motion";
+import { AnimatePresence, motion, useMotionValue, useTransform, useAnimation } from "framer-motion";
+import { Briefcase, GraduationCap, ChevronUp, Gem, Ruler, Sparkles } from 'lucide-react';
 
 interface ProfileCardProps {
   profile: Profile;
@@ -17,6 +18,7 @@ interface ProfileCardProps {
 
 export function ProfileCard({ profile, onSwipe, isTop }: ProfileCardProps) {
   const [isClient, setIsClient] = useState(false);
+  const [isExpanded, setIsExpanded] = useState(false);
   const x = useMotionValue(0);
   const controls = useAnimation();
 
@@ -30,6 +32,7 @@ export function ProfileCard({ profile, onSwipe, isTop }: ProfileCardProps) {
   }, []);
 
   const handleDragEnd = (event: any, info: any) => {
+    if (isExpanded) return; // Don't swipe when card is expanded
     if (Math.abs(info.offset.x) > 100) {
       controls.start({
         x: info.offset.x > 0 ? 300 : -300,
@@ -37,6 +40,7 @@ export function ProfileCard({ profile, onSwipe, isTop }: ProfileCardProps) {
         transition: { duration: 0.3 }
       }).then(() => {
         onSwipe();
+        setIsExpanded(false); // Reset state on swipe
       });
     } else {
       controls.start({
@@ -61,7 +65,7 @@ export function ProfileCard({ profile, onSwipe, isTop }: ProfileCardProps) {
         zIndex: isTop ? 10 : 1,
         transform: isTop ? 'none' : 'scale(0.95) translateY(20px)',
       }}
-      drag={isTop ? "x" : false}
+      drag={isTop && !isExpanded ? "x" : false} // Only allow dragging when not expanded
       dragConstraints={{ left: 0, right: 0, top: 0, bottom: 0 }}
       onDragEnd={handleDragEnd}
       animate={controls}
@@ -96,19 +100,56 @@ export function ProfileCard({ profile, onSwipe, isTop }: ProfileCardProps) {
 
         <div 
           onPointerDownCapture={(e) => e.stopPropagation()}
-          className="absolute bottom-0 left-0 right-0 max-h-[60%] overflow-y-auto bg-gradient-to-t from-black/90 to-transparent p-4 md:p-6 flex flex-col justify-end"
+          className="absolute bottom-0 left-0 right-0"
         >
-          <h2 className="text-3xl md:text-4xl font-bold text-white shadow-md">
-            {profile.name}, <span className="font-light">{profile.age}</span>
-          </h2>
-          <p className="text-white/90 mt-1 shadow-md md:text-lg">{profile.bio}</p>
-          <div className="flex flex-wrap gap-2 mt-3">
-            {profile.interests.map((interest) => (
-              <Badge key={interest} variant="secondary" className="bg-white/30 text-white border-0 backdrop-blur-sm">
-                {interest}
-              </Badge>
-            ))}
-          </div>
+          <motion.div 
+            className="bg-gradient-to-t from-black/95 via-black/80 to-transparent"
+            animate={{ height: isExpanded ? '80%' : 'auto' }}
+            transition={{ type: "spring", stiffness: 300, damping: 30 }}
+          >
+            <div className={`p-4 md:p-6 overflow-y-auto h-full ${isExpanded ? 'max-h-[75vh]' : 'max-h-[35vh]'}`}>
+              <div onClick={() => setIsExpanded(!isExpanded)} className="cursor-pointer">
+                <div className="flex justify-between items-start">
+                  <h2 className="text-3xl md:text-4xl font-bold text-white shadow-md">
+                    {profile.name}, <span className="font-light">{profile.age}</span>
+                  </h2>
+                  <motion.div animate={{ rotate: isExpanded ? 180 : 0 }} className="p-2 -mr-2 shrink-0">
+                      <ChevronUp className="h-6 w-6 text-white" />
+                  </motion.div>
+                </div>
+                <p className={`text-white/90 mt-1 shadow-md md:text-lg transition-all ${!isExpanded ? 'line-clamp-2' : ''}`}>
+                    {profile.bio}
+                </p>
+              </div>
+
+              <div className="pt-3 mt-3 border-t border-white/20">
+                <div className="flex flex-wrap gap-2">
+                  {profile.interests.map((interest) => (
+                    <Badge key={interest} variant="secondary" className="bg-white/30 text-white border-0 backdrop-blur-sm">
+                      {interest}
+                    </Badge>
+                  ))}
+                </div>
+
+                <AnimatePresence>
+                  {isExpanded && (
+                    <motion.div
+                        initial={{ opacity: 0, y: 10 }}
+                        animate={{ opacity: 1, y: 0, transition: { delay: 0.1 } }}
+                        exit={{ opacity: 0 }}
+                        className="grid grid-cols-2 gap-x-4 gap-y-3 text-white/90 text-sm mt-4"
+                    >
+                        {profile.occupation && <div className="flex items-center gap-2 truncate"><Briefcase size={16} /><span>{profile.occupation}</span></div>}
+                        {profile.education && <div className="flex items-center gap-2 truncate"><GraduationCap size={16} /><span>{profile.education}</span></div>}
+                        {profile.height && <div className="flex items-center gap-2 truncate"><Ruler size={16} /><span>{profile.height}</span></div>}
+                        {profile.relationshipIntent && <div className="flex items-center gap-2 truncate"><Sparkles size={16} /><span>Looking for {profile.relationshipIntent.toLowerCase()}</span></div>}
+                        {profile.zodiac && <div className="flex items-center gap-2 truncate"><Gem size={16} /><span>{profile.zodiac}</span></div>}
+                    </motion.div>
+                  )}
+                </AnimatePresence>
+              </div>
+            </div>
+          </motion.div>
         </div>
       </Card>
     </motion.div>
