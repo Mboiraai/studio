@@ -1,3 +1,4 @@
+
 "use client";
 
 import { useState } from 'react';
@@ -42,7 +43,7 @@ export default function ChatPage() {
 
   return (
     <div className="flex h-screen flex-col bg-background">
-      <header className="flex items-center justify-between border-b p-3 sticky top-0 bg-background/95 backdrop-blur-sm z-10">
+      <header className="flex items-center justify-between border-b p-3 md:p-4 sticky top-0 bg-background/95 backdrop-blur-sm z-10">
         <div className='flex items-center gap-2'>
             <Button asChild variant="ghost" size="icon" className="h-9 w-9">
                 <Link href="/matches"><ChevronLeft className="h-6 w-6" /></Link>
@@ -56,44 +57,48 @@ export default function ChatPage() {
         <ThemeToggle />
       </header>
       
-      <main className="flex-1 overflow-y-auto p-4 space-y-4">
-        {messages.map((message) => (
-          <div
-            key={message.id}
-            className={cn(
-              'flex items-end gap-2',
-              message.senderId === 'me' ? 'justify-end' : 'justify-start'
-            )}
-          >
+      <main className="flex-1 overflow-y-auto p-4">
+        <div className="space-y-4 max-w-4xl mx-auto">
+            {messages.map((message) => (
             <div
-              className={cn(
-                'max-w-xs rounded-2xl px-4 py-2 md:max-w-md',
-                message.senderId === 'me'
-                  ? 'rounded-br-none bg-primary text-primary-foreground'
-                  : 'rounded-bl-none bg-card border'
-              )}
+                key={message.id}
+                className={cn(
+                'flex items-end gap-2',
+                message.senderId === 'me' ? 'justify-end' : 'justify-start'
+                )}
             >
-              <p>{message.text}</p>
-              <p className={cn("text-xs mt-1", message.senderId === 'me' ? 'text-primary-foreground/70' : 'text-muted-foreground')}>
-                {message.timestamp}
-              </p>
+                <div
+                className={cn(
+                    'max-w-xs sm:max-w-sm md:max-w-md rounded-2xl px-4 py-2',
+                    message.senderId === 'me'
+                    ? 'rounded-br-none bg-primary text-primary-foreground'
+                    : 'rounded-bl-none bg-card border'
+                )}
+                >
+                <p className="break-words">{message.text}</p>
+                <p className={cn("text-xs mt-1", message.senderId === 'me' ? 'text-primary-foreground/70' : 'text-muted-foreground')}>
+                    {message.timestamp}
+                </p>
+                </div>
             </div>
-          </div>
-        ))}
+            ))}
+        </div>
       </main>
       
-      <footer className="sticky bottom-0 bg-background border-t p-2">
-        <form onSubmit={handleSendMessage} className="flex items-center gap-2">
-          <Input
-            value={newMessage}
-            onChange={(e) => setNewMessage(e.target.value)}
-            placeholder="Type a message..."
-            className="flex-1 rounded-full"
-          />
-          <Button type="submit" size="icon" className="rounded-full bg-primary-gradient">
-            <Send className="h-5 w-5" />
-          </Button>
-        </form>
+      <footer className="sticky bottom-0 bg-background border-t p-2 md:p-4">
+        <div className="max-w-4xl mx-auto">
+            <form onSubmit={handleSendMessage} className="flex items-center gap-2">
+            <Input
+                value={newMessage}
+                onChange={(e) => setNewMessage(e.target.value)}
+                placeholder="Type a message..."
+                className="flex-1 rounded-full"
+            />
+            <Button type="submit" size="icon" className="rounded-full bg-primary-gradient shrink-0">
+                <Send className="h-5 w-5" />
+            </Button>
+            </form>
+        </div>
       </footer>
     </div>
   );

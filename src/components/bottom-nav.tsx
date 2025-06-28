@@ -1,3 +1,4 @@
+
 "use client";
 
 import Link from "next/link";
@@ -15,10 +16,10 @@ export function BottomNav() {
   const pathname = usePathname();
 
   return (
-    <nav className="fixed bottom-0 left-0 right-0 z-20 border-t bg-background/80 backdrop-blur-sm">
-      <div className="mx-auto flex h-16 max-w-md items-center justify-around px-4">
+    <nav className="fixed bottom-0 left-0 right-0 z-20 border-t bg-background/95 backdrop-blur-sm md:hidden">
+      <div className="mx-auto flex h-16 items-center justify-around px-4">
         {navLinks.map((link) => {
-          const isActive = pathname === link.href;
+          const isActive = pathname === link.href || (link.href === '/matches' && pathname.startsWith('/chat'));
           return (
             <Link
               key={link.href}

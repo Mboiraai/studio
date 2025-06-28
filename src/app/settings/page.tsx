@@ -1,3 +1,4 @@
+
 "use client"
 
 import { BottomNav } from "@/components/bottom-nav";
@@ -25,19 +26,19 @@ export default function SettingsPage() {
         <div className="mx-auto max-w-3xl space-y-6">
            <h1 className="text-2xl md:text-3xl font-bold tracking-tight">Profile & Settings</h1>
           <Card>
-            <CardHeader className="flex flex-row items-center gap-4">
-               <Avatar className="h-20 w-20">
+            <CardHeader className="flex flex-col sm:flex-row items-center gap-4 p-4 md:p-6">
+               <Avatar className="h-24 w-24 sm:h-20 sm:w-20 shrink-0">
                   <AvatarImage src="https://placehold.co/200x200.png" data-ai-hint="person smiling" />
                   <AvatarFallback>U</AvatarFallback>
               </Avatar>
-              <div className="w-full">
+              <div className="w-full text-center sm:text-left">
                 <Label htmlFor="name">Name</Label>
                 <Input id="name" defaultValue="Jessica" className="text-lg font-semibold" />
               </div>
             </CardHeader>
             <CardContent>
               <Label htmlFor="bio">Bio</Label>
-              <Textarea id="bio" defaultValue="Coffee enthusiast and book lover. Looking for my next adventure." />
+              <Textarea id="bio" defaultValue="Coffee enthusiast and book lover. Looking for my next adventure." rows={3} />
                <Button className="w-full mt-4">Save Profile</Button>
             </CardContent>
           </Card>
@@ -49,16 +50,16 @@ export default function SettingsPage() {
             </CardHeader>
             <CardContent className="space-y-6">
               <div className="space-y-3">
-                <div className="flex justify-between">
+                <div className="flex justify-between items-center">
                   <Label>Distance Preference</Label>
-                  <span className="text-muted-foreground">{distance} km</span>
+                  <span className="text-sm text-muted-foreground">{distance} km</span>
                 </div>
                 <Slider value={[distance]} onValueChange={(val) => setDistance(val[0])} max={150} step={5} />
               </div>
               <div className="space-y-3">
-                <div className="flex justify-between">
+                <div className="flex justify-between items-center">
                   <Label>Age Range</Label>
-                  <span className="text-muted-foreground">{ageRange[0]} - {ageRange[1]}</span>
+                  <span className="text-sm text-muted-foreground">{ageRange[0]} - {ageRange[1]}</span>
                 </div>
                 <Slider value={ageRange} onValueChange={setAgeRange} min={18} max={65} step={1} />
               </div>
@@ -71,16 +72,16 @@ export default function SettingsPage() {
               <CardDescription>How we can contact you.</CardDescription>
             </CardHeader>
             <CardContent className="space-y-4">
-              <div className="flex items-center justify-between">
-                <Label htmlFor="new-matches">New Matches</Label>
+              <div className="flex items-center justify-between gap-4">
+                <Label htmlFor="new-matches" className="flex-1">New Matches</Label>
                 <Switch id="new-matches" defaultChecked />
               </div>
-              <div className="flex items-center justify-between">
-                <Label htmlFor="new-messages">New Messages</Label>
+              <div className="flex items-center justify-between gap-4">
+                <Label htmlFor="new-messages" className="flex-1">New Messages</Label>
                 <Switch id="new-messages" defaultChecked />
               </div>
-              <div className="flex items-center justify-between">
-                <Label htmlFor="promotions">Promotions</Label>
+              <div className="flex items-center justify-between gap-4">
+                <Label htmlFor="promotions" className="flex-1">Promotions</Label>
                 <Switch id="promotions" />
               </div>
             </CardContent>
@@ -110,7 +111,7 @@ export default function SettingsPage() {
           </div>
         </div>
       </main>
-      <div className="h-16" />
+      <div className="h-16 md:hidden" />
       <BottomNav />
     </div>
   );
