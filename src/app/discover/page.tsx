@@ -26,8 +26,8 @@ export default function DiscoverPage() {
     <div className="flex h-screen flex-col bg-background">
       <AppHeader />
       
-      <main className="relative flex-1 flex flex-col items-center justify-end p-4 sm:p-6 md:p-8 overflow-hidden">
-        <div className="relative w-full max-w-sm flex-1 flex items-center justify-center mb-6">
+      <main className="relative flex-1 flex flex-col items-center justify-between p-4 sm:p-6 md:p-8 overflow-hidden">
+        <div className="relative w-full max-w-sm flex-1 flex items-center justify-center mb-4">
           {profiles.length > 0 ? (
             profiles.map((profile, index) => (
               <ProfileCard
@@ -46,11 +46,11 @@ export default function DiscoverPage() {
         </div>
         
         <div className="flex items-center justify-center gap-8 w-full max-w-sm sm:max-w-md">
-          <Button variant="outline" size="icon" className="w-20 h-20 md:w-24 md:h-24 rounded-full border-2 border-destructive text-destructive shadow-lg" onClick={() => handleSwipe(currentProfile)} disabled={!currentProfile}>
-            <X className="w-10 h-10 md:w-12 md:h-12" />
+          <Button variant="outline" size="icon" className="w-16 h-16 md:w-20 md:h-20 rounded-full border-2 border-destructive text-destructive shadow-lg" onClick={() => handleSwipe(currentProfile)} disabled={!currentProfile}>
+            <X className="w-8 h-8 md:w-10 md:h-10" />
           </Button>
-          <Button variant="outline" size="icon" className="w-20 h-20 md:w-24 md:h-24 rounded-full border-2 border-green-500 text-green-500 shadow-lg" onClick={() => handleSwipe(currentProfile)} disabled={!currentProfile}>
-            <Heart className="w-10 h-10 md:w-12 md:h-12" />
+          <Button variant="outline" size="icon" className="w-16 h-16 md:w-20 md:h-20 rounded-full border-2 border-green-500 text-green-500 shadow-lg" onClick={() => handleSwipe(currentProfile)} disabled={!currentProfile}>
+            <Heart className="w-8 h-8 md:w-10 md:h-10" />
           </Button>
         </div>
       </main>
