@@ -22,8 +22,11 @@ import { useToast } from "@/hooks/use-toast";
 import { Camera, Loader2, PlusCircle } from "lucide-react";
 import { Select, SelectContent, SelectGroup, SelectItem, SelectLabel, SelectTrigger, SelectValue } from "@/components/ui/select";
 import Image from "next/image";
+import { Badge } from "@/components/ui/badge";
 
 const zodiacSigns = ['Aries', 'Taurus', 'Gemini', 'Cancer', 'Leo', 'Virgo', 'Libra', 'Scorpio', 'Sagittarius', 'Capricorn', 'Aquarius', 'Pisces'];
+const allInterests = ['Music', 'Fitness', 'Movies', 'Reading', 'Traveling', 'Gaming', 'Cooking', 'Art', 'Hiking', 'Dancing', 'Sports', 'Photography', 'Yoga', 'Podcasts'];
+
 
 export default function SettingsPage() {
   const [ageRange, setAgeRange] = useState([24, 35]);
@@ -34,6 +37,7 @@ export default function SettingsPage() {
   
   const [bio, setBio] = useState("");
   const [photos, setPhotos] = useState<string[]>(Array(6).fill(""));
+  const [selectedInterests, setSelectedInterests] = useState<string[]>([]);
 
   useEffect(() => {
     if (!loading && !user) {
@@ -46,6 +50,14 @@ export default function SettingsPage() {
     }
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [user, loading, router]);
+
+  const handleInterestToggle = (interest: string) => {
+    setSelectedInterests(prev =>
+      prev.includes(interest)
+        ? prev.filter(i => i !== interest)
+        : [...prev, interest]
+    );
+  };
 
   const handleSignOut = async () => {
     try {
@@ -223,7 +235,18 @@ export default function SettingsPage() {
                 <CardDescription>Add some of your hobbies and passions to show who you are.</CardDescription>
              </CardHeader>
              <CardContent>
-                <Textarea placeholder="Add interests, separated by commas (e.g. music, fitness, movies)" />
+                <div className="flex flex-wrap gap-2">
+                  {allInterests.map((interest) => (
+                    <Badge
+                      key={interest}
+                      variant={selectedInterests.includes(interest) ? "default" : "outline"}
+                      onClick={() => handleInterestToggle(interest)}
+                      className="cursor-pointer"
+                    >
+                      {interest}
+                    </Badge>
+                  ))}
+                </div>
              </CardContent>
           </Card>
 
