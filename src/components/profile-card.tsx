@@ -95,7 +95,7 @@ export function ProfileCard({ profile, onSwipe, isTop }: ProfileCardProps) {
         </Carousel>
 
         <div 
-          onPointerDown={(e) => e.stopPropagation()}
+          onPointerDownCapture={(e) => e.stopPropagation()}
           className="absolute bottom-0 left-0 right-0 max-h-[60%] overflow-y-auto bg-gradient-to-t from-black/90 to-transparent p-4 md:p-6 flex flex-col justify-end"
         >
           <h2 className="text-3xl md:text-4xl font-bold text-white shadow-md">
