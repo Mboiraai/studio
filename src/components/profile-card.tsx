@@ -93,11 +93,11 @@ export function ProfileCard({ profile, onSwipe, isTop }: ProfileCardProps) {
           <CarouselNext className="absolute right-2 top-1/2 -translate-y-1/2 z-10" />
         </Carousel>
 
-        <div className="absolute bottom-0 left-0 right-0 h-1/3 bg-gradient-to-t from-black/80 to-transparent p-4 flex flex-col justify-end">
-          <h2 className="text-3xl font-bold text-white shadow-md">
+        <div className="absolute bottom-0 left-0 right-0 h-1/3 bg-gradient-to-t from-black/80 to-transparent p-4 md:p-6 flex flex-col justify-end">
+          <h2 className="text-3xl md:text-4xl font-bold text-white shadow-md">
             {profile.name}, <span className="font-light">{profile.age}</span>
           </h2>
-          <p className="text-white/90 mt-1 line-clamp-2 shadow-md">{profile.bio}</p>
+          <p className="text-white/90 mt-1 line-clamp-2 shadow-md md:text-lg">{profile.bio}</p>
           <div className="flex flex-wrap gap-2 mt-3">
             {profile.interests.map((interest) => (
               <Badge key={interest} variant="secondary" className="bg-white/30 text-white border-0 backdrop-blur-sm">
