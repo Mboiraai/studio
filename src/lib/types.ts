@@ -21,7 +21,7 @@ export interface Profile {
   height?: string;
   bodyType?: 'Slim' | 'Athletic' | 'Curvy' | 'Average' | 'Other';
   pets?: 'Dog lover' | 'Cat owner' | 'Has other pets' | 'No pets' | 'Wants pets';
-  relationshipIntent?: 'Casual' | 'Long-term' | 'Friendship' | 'Open to anything';
+  lookingFor?: 'Casual' | 'Long-term' | 'Friendship' | 'Open to anything';
   smoking?: 'Socially' | 'Frequently' | 'Rarely' | 'Never';
   drinking?: 'Socially' | 'Frequently' | 'Rarely' | 'Never';
   kids?: 'Has and wants more' | 'Has and doesn\'t want more' | 'Doesn\'t have and wants' | 'Doesn\'t have and doesn\'t want';

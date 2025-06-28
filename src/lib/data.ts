@@ -16,7 +16,7 @@ export const profiles: Profile[] = [
     education: 'University of Arts',
     height: "5'7\"",
     zodiac: 'Leo',
-    relationshipIntent: 'Long-term'
+    lookingFor: 'Long-term'
   },
   {
     id: '2',
@@ -32,7 +32,7 @@ export const profiles: Profile[] = [
     education: 'Tech Institute',
     height: "6'1\"",
     zodiac: 'Aquarius',
-    relationshipIntent: 'Open to anything'
+    lookingFor: 'Open to anything'
   },
   {
     id: '3',
@@ -49,7 +49,7 @@ export const profiles: Profile[] = [
     education: 'Design School',
     height: "5'5\"",
     zodiac: 'Pisces',
-    relationshipIntent: 'Friendship'
+    lookingFor: 'Friendship'
   },
   {
     id: '4',
@@ -64,7 +64,7 @@ export const profiles: Profile[] = [
     education: 'State University',
     height: "5'11\"",
     zodiac: 'Aries',
-    relationshipIntent: 'Casual'
+    lookingFor: 'Casual'
   },
 ];
 

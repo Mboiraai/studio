@@ -142,7 +142,7 @@ export function ProfileCard({ profile, onSwipe, isTop }: ProfileCardProps) {
                         {profile.occupation && <div className="flex items-center gap-2 truncate"><Briefcase size={16} /><span>{profile.occupation}</span></div>}
                         {profile.education && <div className="flex items-center gap-2 truncate"><GraduationCap size={16} /><span>{profile.education}</span></div>}
                         {profile.height && <div className="flex items-center gap-2 truncate"><Ruler size={16} /><span>{profile.height}</span></div>}
-                        {profile.relationshipIntent && <div className="flex items-center gap-2 truncate"><Sparkles size={16} /><span>Looking for {profile.relationshipIntent.toLowerCase()}</span></div>}
+                        {profile.lookingFor && <div className="flex items-center gap-2 truncate"><Sparkles size={16} /><span>Looking for {profile.lookingFor.toLowerCase()}</span></div>}
                         {profile.zodiac && <div className="flex items-center gap-2 truncate"><Gem size={16} /><span>{profile.zodiac}</span></div>}
                     </motion.div>
                   )}
