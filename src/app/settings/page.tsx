@@ -40,7 +40,7 @@ export default function SettingsPage() {
     name: '',
     dob: '',
     bio: '',
-    photos: Array(6).fill(''),
+    images: Array(6).fill(''),
     gender: '',
     height: '',
     education: '',
@@ -84,7 +84,7 @@ export default function SettingsPage() {
           setProfileData(prev => ({
             ...prev,
             name: user.displayName?.split(' ')[0] ?? '',
-            photos: [user.photoURL ?? '', ...prev.photos.slice(1)],
+            images: [user.photoURL ?? '', ...prev.images.slice(1)],
           }));
         }
       }
@@ -95,7 +95,7 @@ export default function SettingsPage() {
   
   useEffect(() => {
     const fields = [
-        profileData.photos[0],
+        profileData.images[0],
         profileData.dob,
         profileData.bio,
         profileData.gender,
@@ -164,9 +164,9 @@ export default function SettingsPage() {
         }
         const reader = new FileReader();
         reader.onloadend = () => {
-            const newPhotos = [...profileData.photos];
-            newPhotos[editingPhotoIndex] = reader.result as string;
-            setProfileData(prev => ({...prev, photos: newPhotos}));
+            const newImages = [...profileData.images];
+            newImages[editingPhotoIndex] = reader.result as string;
+            setProfileData(prev => ({...prev, images: newImages}));
         };
         reader.readAsDataURL(file);
     }
@@ -277,7 +277,7 @@ export default function SettingsPage() {
                 <Label>Your Photos (1-6)</Label>
                 <input type="file" accept="image/*" ref={fileInputRef} onChange={handleFileChange} className="hidden" />
                 <div className="grid grid-cols-3 sm:grid-cols-6 gap-2">
-                  {profileData.photos.map((photo, index) => (
+                  {profileData.images.map((photo, index) => (
                     <div key={index} onClick={() => handlePhotoClick(index)} className="relative aspect-square rounded-lg border-2 border-dashed flex items-center justify-center bg-muted/50 overflow-hidden cursor-pointer group">
                       {photo ? (
                         <>

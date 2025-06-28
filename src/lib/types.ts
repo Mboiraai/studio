@@ -25,6 +25,8 @@ export interface Profile {
   smoking?: 'Socially' | 'Frequently' | 'Rarely' | 'Never';
   drinking?: 'Socially' | 'Frequently' | 'Rarely' | 'Never';
   kids?: 'Has and wants more' | 'Has and doesn\'t want more' | 'Doesn\'t have and wants' | 'Doesn\'t have and doesn\'t want';
+  distance?: number;
+  ageRange?: number[];
 }
 
 export interface Match {
