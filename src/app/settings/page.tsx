@@ -9,15 +9,52 @@ import { Slider } from "@/components/ui/slider";
 import { Switch } from "@/components/ui/switch";
 import { Separator } from "@/components/ui/separator";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { AppHeader } from "@/components/app-header";
+import { useAuth } from "@/components/auth-provider";
+import { signOut } from "firebase/auth";
+import { auth } from "@/lib/firebase";
+import { useRouter } from "next/navigation";
+import { useToast } from "@/hooks/use-toast";
+import { Loader2 } from "lucide-react";
 
 export default function SettingsPage() {
   const [ageRange, setAgeRange] = useState([24, 35]);
   const [distance, setDistance] = useState(50);
+  const { user, loading } = useAuth();
+  const router = useRouter();
+  const { toast } = useToast();
+
+  useEffect(() => {
+    if (!loading && !user) {
+      router.push('/');
+    }
+  }, [user, loading, router]);
+
+  const handleSignOut = async () => {
+    try {
+      await signOut(auth);
+      router.push('/');
+    } catch (error) {
+      console.error("Error signing out: ", error);
+      toast({
+        variant: "destructive",
+        title: "Sign Out Failed",
+        description: "There was an error signing out. Please try again.",
+      });
+    }
+  };
+
+  if (loading || !user) {
+    return (
+      <div className="flex h-screen items-center justify-center bg-background">
+        <Loader2 className="h-8 w-8 animate-spin" />
+      </div>
+    );
+  }
 
   return (
     <div className="flex h-screen flex-col">
@@ -28,17 +65,17 @@ export default function SettingsPage() {
           <Card>
             <CardHeader className="flex flex-col sm:flex-row items-center gap-4 p-4 md:p-6">
                <Avatar className="h-24 w-24 sm:h-20 sm:w-20 shrink-0">
-                  <AvatarImage src="https://placehold.co/200x200.png" data-ai-hint="person smiling" />
-                  <AvatarFallback>U</AvatarFallback>
+                  <AvatarImage src={user.photoURL ?? "https://placehold.co/200x200.png"} data-ai-hint="person smiling" />
+                  <AvatarFallback>{user.displayName?.charAt(0).toUpperCase() ?? 'U'}</AvatarFallback>
               </Avatar>
               <div className="w-full text-center sm:text-left">
                 <Label htmlFor="name">Name</Label>
-                <Input id="name" defaultValue="Jessica" className="text-lg font-semibold" />
+                <Input id="name" defaultValue={user.displayName ?? ""} className="text-lg font-semibold" />
               </div>
             </CardHeader>
             <CardContent>
               <Label htmlFor="bio">Bio</Label>
-              <Textarea id="bio" defaultValue="Coffee enthusiast and book lover. Looking for my next adventure." rows={3} />
+              <Textarea id="bio" placeholder="Tell us about yourself..." rows={3} />
                <Button className="w-full mt-4">Save Profile</Button>
             </CardContent>
           </Card>
@@ -90,7 +127,7 @@ export default function SettingsPage() {
           <Separator />
           
           <div className="space-y-2">
-              <Button variant="outline" className="w-full">Log Out</Button>
+              <Button variant="outline" className="w-full" onClick={handleSignOut}>Log Out</Button>
               <AlertDialog>
                 <AlertDialogTrigger asChild>
                   <Button variant="destructive" className="w-full">Delete Account</Button>
