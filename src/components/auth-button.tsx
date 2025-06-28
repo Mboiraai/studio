@@ -14,10 +14,12 @@ import {
 } from "./ui/dropdown-menu";
 import { Avatar, AvatarFallback, AvatarImage } from "./ui/avatar";
 import { useToast } from "@/hooks/use-toast";
+import { useRouter } from "next/navigation";
 
 export function AuthButton() {
   const { user } = useAuth();
   const { toast } = useToast();
+  const router = useRouter();
 
   const handleSignIn = async () => {
     const provider = new GoogleAuthProvider();
@@ -36,6 +38,7 @@ export function AuthButton() {
   const handleSignOut = async () => {
     try {
       await signOut(auth);
+      router.push('/');
     } catch (error) {
       console.error("Error signing out: ", error);
       toast({
