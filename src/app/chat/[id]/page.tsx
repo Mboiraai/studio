@@ -67,19 +67,20 @@ export default function ChatPage() {
     const otherUserId = params.id as string;
     const chatId = [user.uid, otherUserId].sort().join('_');
     const messagesCollection = collection(db, 'chats', chatId, 'messages');
+    const chatDocRef = doc(db, 'chats', chatId);
+
+    // Ensure the chat document exists before sending a message
+    await setDoc(chatDocRef, {
+        participants: [user.uid, otherUserId],
+        lastMessage: newMessage,
+        lastMessageTimestamp: serverTimestamp(),
+    }, { merge: true });
 
     await addDoc(messagesCollection, {
       text: newMessage,
       senderId: user.uid,
       timestamp: serverTimestamp(),
     });
-
-    const chatDocRef = doc(db, 'chats', chatId);
-    await setDoc(chatDocRef, {
-        participants: [user.uid, otherUserId],
-        lastMessage: newMessage,
-        lastMessageTimestamp: serverTimestamp(),
-    }, { merge: true });
 
     setNewMessage('');
   };
