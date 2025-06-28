@@ -253,7 +253,7 @@ export default function SettingsPage() {
 
               <div className="grid sm:grid-cols-2 gap-4">
                 <div className="space-y-2">
-                  <Label htmlFor="name">First Name</Label>
+                  <Label htmlFor="name">Display Name</Label>
                   <Input id="name" value={profileData.name} onChange={handleInputChange} />
                 </div>
                  <div className="space-y-2">
