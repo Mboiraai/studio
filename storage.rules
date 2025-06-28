@@ -3,11 +3,20 @@ rules_version = '2';
 
 service firebase.storage {
   match /b/{bucket}/o {
-    // Users can only upload photos to their own folder
-    // Photos are publicly readable
+    
+    // Helper function
+    function isSignedIn() {
+      return request.auth != null;
+    }
+
+    // User profile images can be read by any authenticated user.
     match /users/{userId}/{allPaths=**} {
-      allow read;
-      allow write: if request.auth != null && request.auth.uid == userId;
+      allow read: if isSignedIn();
+      // The owner can write images that are less than 5MB.
+      allow write: if isSignedIn() 
+                   && request.auth.uid == userId
+                   && request.resource.size < 5 * 1024 * 1024
+                   && request.resource.contentType.matches('image/.*');
     }
   }
 }
