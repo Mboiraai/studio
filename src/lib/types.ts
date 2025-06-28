@@ -15,7 +15,7 @@ export interface Profile {
   location?: string;
   occupation?: string;
   education?: string;
-  languages?: string[];
+  languages?: string;
   zodiac?: 'Aries' | 'Taurus' | 'Gemini' | 'Cancer' | 'Leo' | 'Virgo' | 'Libra' | 'Scorpio' | 'Sagittarius' | 'Capricorn' | 'Aquarius' | 'Pisces';
   religion?: string;
   height?: string;

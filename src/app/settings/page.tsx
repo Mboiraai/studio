@@ -16,7 +16,8 @@ import { Textarea } from "@/components/ui/textarea";
 import { AppHeader } from "@/components/app-header";
 import { useAuth } from "@/components/auth-provider";
 import { signOut } from "firebase/auth";
-import { auth } from "@/lib/firebase";
+import { auth, db } from "@/lib/firebase";
+import { doc, setDoc, getDoc } from "firebase/firestore";
 import { useRouter } from "next/navigation";
 import { useToast } from "@/hooks/use-toast";
 import { Camera, Loader2, PlusCircle } from "lucide-react";
@@ -61,21 +62,35 @@ export default function SettingsPage() {
   });
   
   const [profileCompletion, setProfileCompletion] = useState(0);
+  const [isSaving, setIsSaving] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [editingPhotoIndex, setEditingPhotoIndex] = useState<number | null>(null);
 
   useEffect(() => {
     if (!loading && !user) {
       router.push('/');
+      return;
     }
-    if (user) {
-       setProfileData(prev => ({
-        ...prev,
-        name: user.displayName?.split(' ')[0] ?? '',
-        photos: [user.photoURL ?? '', ...prev.photos.slice(1)],
-      }));
-    }
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+
+    const fetchProfileData = async () => {
+      if (user) {
+        const profileDocRef = doc(db, "profiles", user.uid);
+        const docSnap = await getDoc(profileDocRef);
+
+        if (docSnap.exists()) {
+          setProfileData(prev => ({ ...prev, ...docSnap.data() }));
+        } else {
+          // Pre-populate with some data from auth if profile doesn't exist
+          setProfileData(prev => ({
+            ...prev,
+            name: user.displayName?.split(' ')[0] ?? '',
+            photos: [user.photoURL ?? '', ...prev.photos.slice(1)],
+          }));
+        }
+      }
+    };
+    
+    fetchProfileData();
   }, [user, loading, router]);
   
   useEffect(() => {
@@ -157,6 +172,34 @@ export default function SettingsPage() {
     }
   };
 
+  const handleSaveChanges = async () => {
+    if (!user) {
+        toast({
+            variant: "destructive",
+            title: "Not Authenticated",
+            description: "You need to be logged in to save changes.",
+        });
+        return;
+    }
+    setIsSaving(true);
+    try {
+        const profileDocRef = doc(db, "profiles", user.uid);
+        await setDoc(profileDocRef, profileData, { merge: true });
+        toast({
+            title: "Profile Updated",
+            description: "Your changes have been saved successfully.",
+        });
+    } catch (error) {
+        console.error("Error saving profile: ", error);
+        toast({
+            variant: "destructive",
+            title: "Error",
+            description: "Failed to save your profile. Please try again.",
+        });
+    } finally {
+        setIsSaving(false);
+    }
+  };
 
   const handleSignOut = async () => {
     try {
@@ -387,7 +430,16 @@ export default function SettingsPage() {
              </CardContent>
           </Card>
 
-           <Button size="lg" className="w-full bg-primary-gradient font-bold text-lg">Save All Changes</Button>
+           <Button onClick={handleSaveChanges} disabled={isSaving} size="lg" className="w-full bg-primary-gradient font-bold text-lg">
+            {isSaving ? (
+              <>
+                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                Saving...
+              </>
+            ) : (
+              'Save All Changes'
+            )}
+           </Button>
 
           <Card>
             <CardHeader>
