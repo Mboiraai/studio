@@ -16,8 +16,9 @@ import { Textarea } from "@/components/ui/textarea";
 import { AppHeader } from "@/components/app-header";
 import { useAuth } from "@/components/auth-provider";
 import { signOut } from "firebase/auth";
-import { auth, db } from "@/lib/firebase";
+import { auth, db, storage } from "@/lib/firebase";
 import { doc, setDoc, getDoc } from "firebase/firestore";
+import { ref, uploadBytes, getDownloadURL } from "firebase/storage";
 import { useRouter } from "next/navigation";
 import { useToast } from "@/hooks/use-toast";
 import { Camera, Loader2, PlusCircle } from "lucide-react";
@@ -63,6 +64,7 @@ export default function SettingsPage() {
   
   const [profileCompletion, setProfileCompletion] = useState(0);
   const [isSaving, setIsSaving] = useState(false);
+  const [isUploading, setIsUploading] = useState<number | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [editingPhotoIndex, setEditingPhotoIndex] = useState<number | null>(null);
 
@@ -78,13 +80,24 @@ export default function SettingsPage() {
         const docSnap = await getDoc(profileDocRef);
 
         if (docSnap.exists()) {
-          setProfileData(prev => ({ ...prev, ...docSnap.data() }));
+          const data = docSnap.data();
+          // Ensure images is always an array of 6
+          const images = data.images || [];
+          const fullImages = Array(6).fill('');
+          images.forEach((img: string, i: number) => {
+            if (i < 6) fullImages[i] = img;
+          });
+          setProfileData(prev => ({ ...prev, ...data, images: fullImages }));
         } else {
           // Pre-populate with some data from auth if profile doesn't exist
+          const initialImages = Array(6).fill('');
+          if (user.photoURL) {
+            initialImages[0] = user.photoURL;
+          }
           setProfileData(prev => ({
             ...prev,
             name: user.displayName?.split(' ')[0] ?? '',
-            images: [user.photoURL ?? '', ...prev.images.slice(1)],
+            images: initialImages,
           }));
         }
       }
@@ -151,24 +164,58 @@ export default function SettingsPage() {
   };
   
   const handlePhotoClick = (index: number) => {
+    if (isUploading !== null) return;
     setEditingPhotoIndex(index);
     fileInputRef.current?.click();
   };
 
-  const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    if (event.target.files && event.target.files[0] && editingPhotoIndex !== null) {
-        const file = event.target.files[0];
-        if (file.size > 5 * 1024 * 1024) { // 5MB limit
-            toast({ variant: 'destructive', title: 'File too large', description: 'Please select an image smaller than 5MB.'});
-            return;
+  const handleFileChange = async (event: React.ChangeEvent<HTMLInputElement>) => {
+    if (!event.target.files?.[0] || editingPhotoIndex === null || !user) {
+        return;
+    }
+
+    const file = event.target.files[0];
+    const index = editingPhotoIndex;
+    setEditingPhotoIndex(null);
+
+    if (file.size > 5 * 1024 * 1024) { // 5MB limit
+        toast({ variant: 'destructive', title: 'File too large', description: 'Please select an image smaller than 5MB.'});
+        return;
+    }
+
+    setIsUploading(index);
+    try {
+        const filePath = `profiles/${user.uid}/images/${Date.now()}_${file.name}`;
+        const storageRef = ref(storage, filePath);
+        
+        await uploadBytes(storageRef, file);
+        const photoURL = await getDownloadURL(storageRef);
+
+        const newImages = [...profileData.images];
+        newImages[index] = photoURL;
+        
+        setProfileData(prev => ({...prev, images: newImages}));
+        
+        const profileDocRef = doc(db, "profiles", user.uid);
+        await setDoc(profileDocRef, { images: newImages }, { merge: true });
+
+        toast({
+            title: "Photo updated!",
+            description: "Your new photo has been saved.",
+        });
+
+    } catch (error) {
+        console.error("Error uploading photo:", error);
+        toast({
+            variant: "destructive",
+            title: "Upload Failed",
+            description: "There was a problem uploading your photo. Please try again.",
+        });
+    } finally {
+        setIsUploading(null);
+        if (fileInputRef.current) {
+            fileInputRef.current.value = "";
         }
-        const reader = new FileReader();
-        reader.onloadend = () => {
-            const newImages = [...profileData.images];
-            newImages[editingPhotoIndex] = reader.result as string;
-            setProfileData(prev => ({...prev, images: newImages}));
-        };
-        reader.readAsDataURL(file);
     }
   };
 
@@ -279,7 +326,12 @@ export default function SettingsPage() {
                 <div className="grid grid-cols-3 sm:grid-cols-6 gap-2">
                   {profileData.images.map((photo, index) => (
                     <div key={index} onClick={() => handlePhotoClick(index)} className="relative aspect-square rounded-lg border-2 border-dashed flex items-center justify-center bg-muted/50 overflow-hidden cursor-pointer group">
-                      {photo ? (
+                      {isUploading === index ? (
+                        <div className="flex flex-col items-center justify-center gap-2 text-muted-foreground">
+                            <Loader2 className="h-8 w-8 animate-spin" />
+                            <p className="text-xs">Uploading...</p>
+                        </div>
+                      ) : photo ? (
                         <>
                           <Image src={photo} alt={`Profile photo ${index + 1}`} fill className="object-cover" data-ai-hint="person smiling" />
                           <div className="absolute inset-0 bg-black/50 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
