@@ -1,4 +1,10 @@
 
+"use client";
+
+import { useEffect } from "react";
+import { useRouter } from "next/navigation";
+import { useAuth } from "@/components/auth-provider";
+import { Loader2 } from "lucide-react";
 import { matches } from "@/lib/data";
 import { BottomNav } from "@/components/bottom-nav";
 import { AppHeader } from "@/components/app-header";
@@ -7,6 +13,23 @@ import Link from "next/link";
 import { Badge } from "@/components/ui/badge";
 
 export default function MatchesPage() {
+  const { user, loading } = useAuth();
+  const router = useRouter();
+
+  useEffect(() => {
+    if (!loading && !user) {
+      router.push('/');
+    }
+  }, [user, loading, router]);
+
+  if (loading || !user) {
+    return (
+      <div className="flex h-screen items-center justify-center bg-background">
+        <Loader2 className="h-8 w-8 animate-spin" />
+      </div>
+    );
+  }
+  
   return (
     <div className="flex h-screen flex-col">
       <AppHeader />

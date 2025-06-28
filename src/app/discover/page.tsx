@@ -1,7 +1,10 @@
 
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { useRouter } from "next/navigation";
+import { useAuth } from "@/components/auth-provider";
+import { Loader2 } from "lucide-react";
 import { profiles as initialProfiles } from "@/lib/data";
 import { Profile } from "@/lib/types";
 import { ProfileCard } from "@/components/profile-card";
@@ -11,7 +14,15 @@ import { Heart, X } from "lucide-react";
 import { AppHeader } from "@/components/app-header";
 
 export default function DiscoverPage() {
+  const { user, loading } = useAuth();
+  const router = useRouter();
   const [profiles, setProfiles] = useState<Profile[]>(initialProfiles);
+
+  useEffect(() => {
+    if (!loading && !user) {
+      router.push('/');
+    }
+  }, [user, loading, router]);
 
   const handleSwipe = (swipedProfile: Profile) => {
     if (!swipedProfile) return;
@@ -21,6 +32,14 @@ export default function DiscoverPage() {
   };
   
   const currentProfile = profiles[profiles.length - 1];
+
+  if (loading || !user) {
+    return (
+      <div className="flex h-screen items-center justify-center bg-background">
+        <Loader2 className="h-8 w-8 animate-spin" />
+      </div>
+    );
+  }
 
   return (
     <div className="flex h-screen flex-col bg-background">
