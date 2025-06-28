@@ -1,4 +1,5 @@
 import { cn } from "@/lib/utils";
+import { AuthButton } from "./auth-button";
 import { ThemeToggle } from "./theme-toggle";
 
 interface PageHeaderProps extends React.HTMLAttributes<HTMLDivElement> {
@@ -16,6 +17,7 @@ export function PageHeader({ title, subtitle, children, className, ...props }: P
       </div>
       <div className="flex items-center gap-2">
         {children}
+        <AuthButton />
         <ThemeToggle />
       </div>
     </header>

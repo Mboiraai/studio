@@ -4,6 +4,7 @@ import { Logo } from "@/components/logo";
 import { ThemeToggle } from "@/components/theme-toggle";
 import { cn } from "@/lib/utils";
 import { DesktopNav } from "./desktop-nav";
+import { AuthButton } from "./auth-button";
 
 export function AppHeader({ className }: { className?: string }) {
   return (
@@ -14,8 +15,11 @@ export function AppHeader({ className }: { className?: string }) {
           Linderr
         </h1>
       </Link>
-      <DesktopNav />
-      <ThemeToggle />
+      <div className="flex items-center gap-4">
+        <DesktopNav />
+        <AuthButton />
+        <ThemeToggle />
+      </div>
     </header>
   );
 }
