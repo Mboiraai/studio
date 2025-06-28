@@ -1,7 +1,6 @@
 "use client"
 
 import { BottomNav } from "@/components/bottom-nav";
-import { PageHeader } from "@/components/page-header";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
@@ -13,6 +12,7 @@ import { useState } from "react";
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
+import { AppHeader } from "@/components/app-header";
 
 export default function SettingsPage() {
   const [ageRange, setAgeRange] = useState([24, 35]);
@@ -20,9 +20,10 @@ export default function SettingsPage() {
 
   return (
     <div className="flex h-screen flex-col">
-      <PageHeader title="Profile & Settings" />
+      <AppHeader />
       <main className="flex-1 overflow-y-auto p-4 md:p-6 lg:p-8">
         <div className="mx-auto max-w-3xl space-y-6">
+           <h1 className="text-2xl md:text-3xl font-bold tracking-tight">Profile & Settings</h1>
           <Card>
             <CardHeader className="flex flex-row items-center gap-4">
                <Avatar className="h-20 w-20">

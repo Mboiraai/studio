@@ -10,6 +10,7 @@ import { cn } from '@/lib/utils';
 import { ChevronLeft, Send } from 'lucide-react';
 import Link from 'next/link';
 import { useParams } from 'next/navigation';
+import { ThemeToggle } from '@/components/theme-toggle';
 
 export default function ChatPage() {
   const [messages, setMessages] = useState<Message[]>(initialMessages);
@@ -41,15 +42,18 @@ export default function ChatPage() {
 
   return (
     <div className="flex h-screen flex-col bg-background">
-      <header className="flex items-center gap-4 border-b p-3 sticky top-0 bg-background/80 backdrop-blur-sm z-10">
-        <Button asChild variant="ghost" size="icon" className="h-9 w-9">
-            <Link href="/matches"><ChevronLeft className="h-6 w-6" /></Link>
-        </Button>
-        <Avatar className="h-10 w-10 border-2 border-primary/50">
-          <AvatarImage src={match.userAvatar} alt={match.userName} data-ai-hint="person portrait"/>
-          <AvatarFallback>{match.userName.charAt(0)}</AvatarFallback>
-        </Avatar>
-        <h2 className="font-semibold text-lg">{match.userName}</h2>
+      <header className="flex items-center justify-between border-b p-3 sticky top-0 bg-background/95 backdrop-blur-sm z-10">
+        <div className='flex items-center gap-2'>
+            <Button asChild variant="ghost" size="icon" className="h-9 w-9">
+                <Link href="/matches"><ChevronLeft className="h-6 w-6" /></Link>
+            </Button>
+            <Avatar className="h-10 w-10 border-2 border-primary/50">
+            <AvatarImage src={match.userAvatar} alt={match.userName} data-ai-hint="person portrait"/>
+            <AvatarFallback>{match.userName.charAt(0)}</AvatarFallback>
+            </Avatar>
+            <h2 className="font-semibold text-lg">{match.userName}</h2>
+        </div>
+        <ThemeToggle />
       </header>
       
       <main className="flex-1 overflow-y-auto p-4 space-y-4">

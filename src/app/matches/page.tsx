@@ -1,6 +1,6 @@
 import { matches } from "@/lib/data";
 import { BottomNav } from "@/components/bottom-nav";
-import { PageHeader } from "@/components/page-header";
+import { AppHeader } from "@/components/app-header";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import Link from "next/link";
 import { Badge } from "@/components/ui/badge";
@@ -8,7 +8,11 @@ import { Badge } from "@/components/ui/badge";
 export default function MatchesPage() {
   return (
     <div className="flex h-screen flex-col">
-      <PageHeader title="Matches" subtitle="Your connections" />
+      <AppHeader />
+      <div className="p-4 md:p-6">
+        <h1 className="text-2xl md:text-3xl font-bold tracking-tight">Matches</h1>
+        <p className="text-sm md:text-base text-muted-foreground">Your connections</p>
+      </div>
       <main className="flex-1 overflow-y-auto">
         <div className="divide-y">
           {matches.map((match) => (

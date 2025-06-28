@@ -7,7 +7,7 @@ import { ProfileCard } from "@/components/profile-card";
 import { BottomNav } from "@/components/bottom-nav";
 import { Button } from "@/components/ui/button";
 import { Heart, X, Undo } from "lucide-react";
-import { Logo } from "@/components/logo";
+import { AppHeader } from "@/components/app-header";
 
 export default function DiscoverPage() {
   const [profiles, setProfiles] = useState<Profile[]>(initialProfiles);
@@ -30,9 +30,7 @@ export default function DiscoverPage() {
 
   return (
     <div className="flex h-screen flex-col bg-background">
-      <header className="flex items-center justify-center p-4 border-b">
-        <Logo className="h-8 w-8" />
-      </header>
+      <AppHeader />
       
       <main className="relative flex-1 flex flex-col items-center justify-center p-4 sm:p-6 md:p-8 overflow-hidden">
         <div className="relative w-full max-w-sm sm:max-w-md h-[70vh] max-h-[600px] flex items-center justify-center">
