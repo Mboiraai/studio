@@ -3,20 +3,21 @@ rules_version = '2';
 
 service firebase.storage {
   match /b/{bucket}/o {
-    
-    // Helper function
-    function isSignedIn() {
+    // Helper function to check authentication
+    function isAuthenticated() {
       return request.auth != null;
     }
 
-    // User profile images can be read by any authenticated user.
-    match /users/{userId}/{allPaths=**} {
-      allow read: if isSignedIn();
-      // The owner can write images that are less than 5MB.
-      allow write: if isSignedIn() 
-                   && request.auth.uid == userId
-                   && request.resource.size < 5 * 1024 * 1024
-                   && request.resource.contentType.matches('image/.*');
+    // Match any file in the 'profile-photos' directory
+    match /profile-photos/{userId}/{imageId} {
+      // Allow read access to any authenticated user
+      allow read: if isAuthenticated();
+
+      // Allow write (create, update, delete) access only to the owner of the profile
+      // and validate the uploaded file type and size.
+      allow write: if isAuthenticated() && request.auth.uid == userId
+                    && request.resource.size < 5 * 1024 * 1024 // Max 5MB
+                    && request.resource.contentType.matches('image/.*'); // Must be an image
     }
   }
 }
