@@ -1,8 +1,9 @@
+
 "use client";
 
 import { Profile } from "@/lib/types";
 import { Badge } from "@/components/ui/badge";
-import { Card, CardContent, CardFooter, CardHeader } from "@/components/ui/card";
+import { Card } from "@/components/ui/card";
 import Image from "next/image";
 import { useState, useEffect } from "react";
 import { Carousel, CarouselContent, CarouselItem, CarouselNext, CarouselPrevious } from "@/components/ui/carousel";
@@ -74,7 +75,7 @@ export function ProfileCard({ profile, onSwipe, isTop }: ProfileCardProps) {
           NOPE
         </motion.div>
 
-        <Carousel className="w-full h-full">
+        <Carousel className="w-full h-full" opts={{ draggable: false }}>
           <CarouselContent>
             {profile.images.map((img, index) => (
               <CarouselItem key={index}>

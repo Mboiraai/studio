@@ -25,7 +25,7 @@ export default function DiscoverPage() {
   const handleUndo = () => {
     if (history.length > 0) {
       const lastSwiped = history[0];
-      setProfiles(prev => [lastSwiped, ...prev]);
+      setProfiles(prev => [...prev, lastSwiped]);
       setHistory(prev => prev.slice(1));
     }
   }
