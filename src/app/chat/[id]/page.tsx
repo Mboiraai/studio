@@ -1,11 +1,11 @@
 
 "use client";
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useAuth } from '@/components/auth-provider';
 import { useRouter, useParams } from 'next/navigation';
 import { Loader2 } from 'lucide-react';
-import { messages as initialMessages, matches } from '@/lib/data';
+import { matches } from '@/lib/data';
 import { Message } from '@/lib/types';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
@@ -14,15 +14,26 @@ import { cn } from '@/lib/utils';
 import { ChevronLeft, Send } from 'lucide-react';
 import Link from 'next/link';
 import { ThemeToggle } from '@/components/theme-toggle';
+import { db } from '@/lib/firebase';
+import { collection, query, orderBy, onSnapshot, addDoc, serverTimestamp, doc, setDoc, Timestamp } from 'firebase/firestore';
 
 export default function ChatPage() {
   const { user, loading } = useAuth();
   const router = useRouter();
   const params = useParams();
   
-  const [messages, setMessages] = useState<Message[]>(initialMessages);
+  const [messages, setMessages] = useState<Message[]>([]);
   const [newMessage, setNewMessage] = useState('');
   const match = matches.find(m => m.id === params.id);
+  const messagesEndRef = useRef<HTMLDivElement>(null);
+
+  const scrollToBottom = () => {
+    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
+  };
+
+  useEffect(() => {
+    scrollToBottom();
+  }, [messages]);
 
   useEffect(() => {
     if (!loading && !user) {
@@ -30,16 +41,46 @@ export default function ChatPage() {
     }
   }, [user, loading, router]);
 
-  const handleSendMessage = (e: React.FormEvent) => {
+  useEffect(() => {
+    if (user && params.id) {
+      const otherUserId = params.id as string;
+      const chatId = [user.uid, otherUserId].sort().join('_');
+      const messagesCollection = collection(db, 'chats', chatId, 'messages');
+      const q = query(messagesCollection, orderBy('timestamp', 'asc'));
+
+      const unsubscribe = onSnapshot(q, (querySnapshot) => {
+        const fetchedMessages = querySnapshot.docs.map(doc => ({
+          id: doc.id,
+          ...doc.data(),
+        } as Message));
+        setMessages(fetchedMessages);
+      });
+
+      return () => unsubscribe();
+    }
+  }, [user, params.id]);
+
+  const handleSendMessage = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (newMessage.trim() === '') return;
-    const msg: Message = {
-      id: String(Date.now()),
-      senderId: 'me',
+    if (newMessage.trim() === '' || !user) return;
+    
+    const otherUserId = params.id as string;
+    const chatId = [user.uid, otherUserId].sort().join('_');
+    const messagesCollection = collection(db, 'chats', chatId, 'messages');
+
+    await addDoc(messagesCollection, {
       text: newMessage,
-      timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
-    };
-    setMessages([...messages, msg]);
+      senderId: user.uid,
+      timestamp: serverTimestamp(),
+    });
+
+    const chatDocRef = doc(db, 'chats', chatId);
+    await setDoc(chatDocRef, {
+        participants: [user.uid, otherUserId],
+        lastMessage: newMessage,
+        lastMessageTimestamp: serverTimestamp(),
+    }, { merge: true });
+
     setNewMessage('');
   };
   
@@ -83,24 +124,27 @@ export default function ChatPage() {
                 key={message.id}
                 className={cn(
                 'flex items-end gap-2',
-                message.senderId === 'me' ? 'justify-end' : 'justify-start'
+                message.senderId === user.uid ? 'justify-end' : 'justify-start'
                 )}
             >
                 <div
                 className={cn(
                     'max-w-xs sm:max-w-sm md:max-w-md rounded-2xl px-4 py-2',
-                    message.senderId === 'me'
+                    message.senderId === user.uid
                     ? 'rounded-br-none bg-primary text-primary-foreground'
                     : 'rounded-bl-none bg-card border'
                 )}
                 >
                 <p className="break-words">{message.text}</p>
-                <p className={cn("text-xs mt-1", message.senderId === 'me' ? 'text-primary-foreground/70' : 'text-muted-foreground')}>
-                    {message.timestamp}
-                </p>
+                {message.timestamp && (
+                    <p className={cn("text-xs mt-1", message.senderId === user.uid ? 'text-primary-foreground/70' : 'text-muted-foreground')}>
+                        {(message.timestamp as Timestamp).toDate().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                    </p>
+                )}
                 </div>
             </div>
             ))}
+            <div ref={messagesEndRef} />
         </div>
       </main>
       
@@ -113,7 +157,7 @@ export default function ChatPage() {
                 placeholder="Type a message..."
                 className="flex-1 rounded-full"
             />
-            <Button type="submit" size="icon" className="rounded-full bg-primary-gradient shrink-0">
+            <Button type="submit" size="icon" className="rounded-full bg-primary-gradient shrink-0" disabled={!newMessage.trim()}>
                 <Send className="h-5 w-5" />
             </Button>
             </form>

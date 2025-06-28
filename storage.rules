@@ -3,22 +3,11 @@ rules_version = '2';
 
 service firebase.storage {
   match /b/{bucket}/o {
-
-    // Helper function to check if the user is authenticated
-    function isAuthenticated() {
-      return request.auth != null;
-    }
-
-    // Helper function to check if the user is the owner of the file path
-    function isOwner(userId) {
-      return request.auth.uid == userId;
-    }
-
-    // Profile photos can be read by any authenticated user, but only
-    // written or deleted by the user who owns them.
+    // Users can only upload photos to their own folder
+    // Photos are publicly readable
     match /users/{userId}/{allPaths=**} {
-      allow read: if isAuthenticated();
-      allow write: if isOwner(userId);
+      allow read;
+      allow write: if request.auth != null && request.auth.uid == userId;
     }
   }
 }

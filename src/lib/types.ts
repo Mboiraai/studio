@@ -1,4 +1,6 @@
 
+import type { Timestamp } from 'firebase/firestore';
+
 export interface Profile {
   id: string;
   name: string;
@@ -37,7 +39,7 @@ export interface Match {
 
 export interface Message {
   id: string;
-  senderId: "me" | "other";
+  senderId: string;
   text: string;
-  timestamp: string;
+  timestamp: Timestamp;
 }

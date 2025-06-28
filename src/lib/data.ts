@@ -1,4 +1,4 @@
-import type { Profile, Match, Message } from './types';
+import type { Profile, Match } from './types';
 
 export const profiles: Profile[] = [
   {
@@ -70,7 +70,7 @@ export const profiles: Profile[] = [
 
 export const matches: Match[] = [
   {
-    id: 'match1',
+    id: 'uid_liam_123',
     userId: 'liam',
     userName: 'Liam',
     userAvatar: 'https://placehold.co/100x100.png',
@@ -79,7 +79,7 @@ export const matches: Match[] = [
     unreadCount: 1,
   },
   {
-    id: 'match2',
+    id: 'uid_chloe_456',
     userId: 'chloe',
     userName: 'Chloe',
     userAvatar: 'https://placehold.co/100x100.png',
@@ -88,7 +88,7 @@ export const matches: Match[] = [
     unreadCount: 0,
   },
   {
-    id: 'match3',
+    id: 'uid_ethan_789',
     userId: 'ethan',
     userName: 'Ethan',
     userAvatar: 'https://placehold.co/100x100.png',
@@ -96,12 +96,4 @@ export const matches: Match[] = [
     lastMessageTimestamp: '2d ago',
     unreadCount: 0,
   },
-];
-
-export const messages: Message[] = [
-    { id: '1', senderId: 'other', text: 'Hey! I saw you like hiking too. Any favorite trails?', timestamp: '10:30 PM' },
-    { id: '2', senderId: 'me', text: 'Hey Liam! Yeah, I love the Eagle Peak trail. The view is insane!', timestamp: '10:32 PM' },
-    { id: '3', senderId: 'other', text: 'Oh nice! I haven\'t been there yet. We should go sometime.', timestamp: '10:35 PM' },
-    { id: '4', senderId: 'me', text: 'Totally! What about this weekend?', timestamp: '10:40 PM' },
-    { id: '5', senderId: 'other', text: 'Haha, challenge accepted! What time?', timestamp: '10:42 PM' },
 ];
