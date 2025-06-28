@@ -395,6 +395,27 @@ export default function SettingsPage() {
                   <Label htmlFor="languages">Languages Spoken</Label>
                   <Input id="languages" placeholder="e.g., English, Spanish" value={profileData.languages} onChange={handleInputChange} />
                 </div>
+                <div className="space-y-2">
+                  <Label>I'm interested in</Label>
+                    <Select onValueChange={(value) => handleSelectChange('interestedIn', value)} value={profileData.interestedIn}><SelectTrigger><SelectValue placeholder="Select..." /></SelectTrigger><SelectContent>
+                        <SelectItem value="Men">Men</SelectItem>
+                        <SelectItem value="Women">Women</SelectItem>
+                        <SelectItem value="Everyone">Everyone</SelectItem>
+                    </SelectContent></Select>
+                </div>
+                <div className="space-y-2">
+                  <Label>I'm looking for</Label>
+                    <Select onValueChange={(value) => handleSelectChange('lookingFor', value)} value={profileData.lookingFor}><SelectTrigger><SelectValue placeholder="Select..." /></SelectTrigger><SelectContent>
+                        <SelectItem value="Long-term">Long-term</SelectItem>
+                        <SelectItem value="Casual">Casual</SelectItem>
+                        <SelectItem value="Friendship">Friendship</SelectItem>
+                        <SelectItem value="Open to anything">Open to anything</SelectItem>
+                    </SelectContent></Select>
+                </div>
+                 <div className="space-y-2 sm:col-span-2">
+                  <Label htmlFor="location">My Location</Label>
+                  <Input id="location" placeholder="e.g., San Francisco, CA" value={profileData.location} onChange={handleInputChange} />
+                </div>
             </CardContent>
           </Card>
           
@@ -496,32 +517,9 @@ export default function SettingsPage() {
           <Card>
             <CardHeader>
               <CardTitle>Discovery Settings</CardTitle>
-              <CardDescription>Control who you see and your location.</CardDescription>
+              <CardDescription>Control who you see.</CardDescription>
             </CardHeader>
             <CardContent className="space-y-6">
-              <div className="grid sm:grid-cols-2 gap-4">
-                <div className="space-y-2">
-                  <Label>I'm interested in</Label>
-                    <Select onValueChange={(value) => handleSelectChange('interestedIn', value)} value={profileData.interestedIn}><SelectTrigger><SelectValue placeholder="Select..." /></SelectTrigger><SelectContent>
-                        <SelectItem value="Men">Men</SelectItem>
-                        <SelectItem value="Women">Women</SelectItem>
-                        <SelectItem value="Everyone">Everyone</SelectItem>
-                    </SelectContent></Select>
-                </div>
-                <div className="space-y-2">
-                  <Label>I'm looking for</Label>
-                    <Select onValueChange={(value) => handleSelectChange('lookingFor', value)} value={profileData.lookingFor}><SelectTrigger><SelectValue placeholder="Select..." /></SelectTrigger><SelectContent>
-                        <SelectItem value="Long-term">Long-term</SelectItem>
-                        <SelectItem value="Casual">Casual</SelectItem>
-                        <SelectItem value="Friendship">Friendship</SelectItem>
-                        <SelectItem value="Open to anything">Open to anything</SelectItem>
-                    </SelectContent></Select>
-                </div>
-              </div>
-               <div className="space-y-2">
-                  <Label htmlFor="location">My Location</Label>
-                  <Input id="location" placeholder="e.g., San Francisco, CA" value={profileData.location} onChange={handleInputChange} />
-              </div>
               <div className="space-y-3">
                 <div className="flex justify-between items-center">
                   <Label>Distance Preference</Label>
