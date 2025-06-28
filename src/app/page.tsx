@@ -1,4 +1,3 @@
-
 "use client";
 
 import { useEffect } from "react";
@@ -19,7 +18,7 @@ export default function LoginPage() {
 
   useEffect(() => {
     if (!loading && user) {
-      router.push('/discover');
+      router.push('/welcome');
     }
   }, [user, loading, router]);
 
@@ -62,7 +61,7 @@ export default function LoginPage() {
           size="lg"
           className="mt-10 bg-primary-gradient text-primary-foreground font-bold text-lg px-8 py-5 sm:px-10 sm:py-6 rounded-full shadow-lg transition-transform hover:scale-105"
         >
-          Start Swiping
+          Get Started Free
         </Button>
       </div>
       <footer className="absolute bottom-4 text-center text-sm text-muted-foreground">
