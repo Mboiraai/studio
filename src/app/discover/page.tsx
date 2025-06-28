@@ -12,13 +12,17 @@ import { Button } from "@/components/ui/button";
 import { Heart, X } from "lucide-react";
 import { AppHeader } from "@/components/app-header";
 import { db } from "@/lib/firebase";
-import { collection, getDocs, query, where } from "firebase/firestore";
+import { collection, getDocs, query, where, limit, doc, getDoc, setDoc, serverTimestamp, writeBatch } from "firebase/firestore";
 import { differenceInYears } from "date-fns";
+import { useToast } from "@/hooks/use-toast";
 
 export default function DiscoverPage() {
   const { user, loading: authLoading } = useAuth();
   const router = useRouter();
+  const { toast } = useToast();
+  
   const [profiles, setProfiles] = useState<Profile[]>([]);
+  const [currentUserProfile, setCurrentUserProfile] = useState<Profile | null>(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -28,12 +32,25 @@ export default function DiscoverPage() {
   }, [user, authLoading, router]);
 
   useEffect(() => {
+    const fetchCurrentUserProfile = async () => {
+        if (user) {
+            const profileDoc = await getDoc(doc(db, 'profiles', user.uid));
+            if (profileDoc.exists()) {
+                setCurrentUserProfile({ id: user.uid, ...profileDoc.data() } as Profile);
+            }
+        }
+    };
+    fetchCurrentUserProfile();
+  }, [user]);
+
+  useEffect(() => {
     const fetchProfiles = async () => {
       if (user) {
         setLoading(true);
         try {
           const profilesCollection = collection(db, 'profiles');
-          const q = query(profilesCollection, where('__name__', '!=', user.uid));
+          // Limit to 20 profiles for faster initial load
+          const q = query(profilesCollection, where('__name__', '!=', user.uid), limit(20));
           const querySnapshot = await getDocs(q);
           
           const fetchedProfiles: Profile[] = querySnapshot.docs
@@ -78,11 +95,59 @@ export default function DiscoverPage() {
   }, [user]);
 
 
-  const handleSwipe = (swipedProfile: Profile) => {
-    if (!swipedProfile) return;
+  const handleSwipe = (swipedProfileId: string) => {
+    if (!swipedProfileId) return;
     setProfiles((prevProfiles) =>
-      prevProfiles.filter((p) => p.id !== swipedProfile.id)
+      prevProfiles.filter((p) => p.id !== swipedProfileId)
     );
+  };
+  
+  const handleLike = async (likedProfile: Profile) => {
+    if (!user || !currentUserProfile || !likedProfile) return;
+
+    handleSwipe(likedProfile.id);
+
+    const batch = writeBatch(db);
+    const likeRef = doc(db, `users/${user.uid}/likes`, likedProfile.id);
+    batch.set(likeRef, { likedAt: serverTimestamp() });
+
+    await batch.commit();
+
+    // Check for a match
+    const otherUserLikeRef = doc(db, `users/${likedProfile.id}/likes`, user.uid);
+    const otherUserLikeDoc = await getDoc(otherUserLikeRef);
+
+    if (otherUserLikeDoc.exists()) {
+        toast({
+            title: "It's a Match! 🎉",
+            description: `You and ${likedProfile.name} have liked each other.`,
+        });
+
+        const chatId = [user.uid, likedProfile.id].sort().join('_');
+        const chatRef = doc(db, 'chats', chatId);
+
+        await setDoc(chatRef, {
+            participants: [user.uid, likedProfile.id],
+            participantInfo: {
+                [user.uid]: {
+                    name: currentUserProfile.name,
+                    avatar: currentUserProfile.images?.[0] || '',
+                },
+                [likedProfile.id]: {
+                    name: likedProfile.name,
+                    avatar: likedProfile.images?.[0] || '',
+                },
+            },
+            createdAt: serverTimestamp(),
+        }, { merge: true });
+    }
+  };
+
+  const handleNope = async (nopedProfile: Profile) => {
+     if (!user || !nopedProfile) return;
+     handleSwipe(nopedProfile.id);
+     // Optionally, you can record the "nope" to prevent seeing them again.
+     // For now, we just remove them from the current session.
   };
   
   const currentProfile = profiles[profiles.length - 1];
@@ -108,7 +173,7 @@ export default function DiscoverPage() {
               <ProfileCard
                 key={profile.id}
                 profile={profile}
-                onSwipe={() => handleSwipe(profile)}
+                onSwipe={() => handleSwipe(profile.id)}
                 isTop={index === profiles.length - 1}
               />
             )).reverse()
@@ -121,10 +186,10 @@ export default function DiscoverPage() {
         </div>
         
         <div className="flex items-center justify-center gap-8 w-full max-w-sm sm:max-w-md">
-          <Button variant="outline" size="icon" className="w-16 h-16 md:w-20 md:h-20 rounded-full border-2 border-destructive text-destructive shadow-lg" onClick={() => handleSwipe(currentProfile)} disabled={!currentProfile || loading}>
+          <Button variant="outline" size="icon" className="w-16 h-16 md:w-20 md:h-20 rounded-full border-2 border-destructive text-destructive shadow-lg" onClick={() => handleNope(currentProfile)} disabled={!currentProfile || loading}>
             <X className="w-8 h-8 md:w-10 md:h-10" />
           </Button>
-          <Button variant="outline" size="icon" className="w-16 h-16 md:w-20 md:h-20 rounded-full border-2 border-green-500 text-green-500 shadow-lg" onClick={() => handleSwipe(currentProfile)} disabled={!currentProfile || loading}>
+          <Button variant="outline" size="icon" className="w-16 h-16 md:w-20 md:h-20 rounded-full border-2 border-green-500 text-green-500 shadow-lg" onClick={() => handleLike(currentProfile)} disabled={!currentProfile || loading}>
             <Heart className="w-8 h-8 md:w-10 md:h-10" />
           </Button>
         </div>

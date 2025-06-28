@@ -37,30 +37,28 @@ export default function MatchesPage() {
       );
 
       const unsubscribe = onSnapshot(chatsQuery, async (snapshot) => {
-        const matchesPromises = snapshot.docs.map(async (chatDoc) => {
-          const chatData = chatDoc.data();
-          const otherUserId = chatData.participants.find((p: string) => p !== user.uid);
-          
-          if (!otherUserId) return null;
+        const resolvedMatches = snapshot.docs.map(chatDoc => {
+            const chatData = chatDoc.data();
+            const otherUserId = chatData.participants.find((p: string) => p !== user.uid);
+            
+            if (!otherUserId || !chatData.participantInfo) return null;
 
-          const userDocSnap = await getDoc(doc(db, 'profiles', otherUserId));
-          if (!userDocSnap.exists()) return null;
+            const otherUserInfo = chatData.participantInfo[otherUserId];
+            if (!otherUserInfo) return null;
 
-          const userData = userDocSnap.data();
-          const lastMessageTimestamp = (chatData.lastMessageTimestamp as Timestamp)?.toDate();
-
-          return {
-            id: otherUserId,
-            userId: otherUserId,
-            userName: userData.name || 'User',
-            userAvatar: userData.images?.[0] || `https://placehold.co/100x100.png`,
-            lastMessage: chatData.lastMessage || '',
-            lastMessageTimestamp: lastMessageTimestamp ? formatDistanceToNow(lastMessageTimestamp, { addSuffix: true }) : '',
-            unreadCount: 0, // Placeholder for unread count logic
-          };
-        });
+            const lastMessageTimestamp = (chatData.lastMessageTimestamp as Timestamp)?.toDate();
+            
+            return {
+              id: otherUserId,
+              userId: otherUserId,
+              userName: otherUserInfo.name || 'User',
+              userAvatar: otherUserInfo.avatar || `https://placehold.co/100x100.png`,
+              lastMessage: chatData.lastMessage || '',
+              lastMessageTimestamp: lastMessageTimestamp ? formatDistanceToNow(lastMessageTimestamp, { addSuffix: true }) : 'New match',
+              unreadCount: 0, // Placeholder for unread count logic
+            };
+        }).filter((m): m is Match => m !== null);
         
-        const resolvedMatches = (await Promise.all(matchesPromises)).filter((m): m is Match => m !== null);
         setMatches(resolvedMatches);
         setMatchesLoading(false);
       });

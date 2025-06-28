@@ -5,8 +5,7 @@ import { useState, useEffect, useRef } from 'react';
 import { useAuth } from '@/components/auth-provider';
 import { useRouter, useParams } from 'next/navigation';
 import { Loader2 } from 'lucide-react';
-import { matches } from '@/lib/data';
-import { Message } from '@/lib/types';
+import { Message, Profile } from '@/lib/types';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -15,7 +14,7 @@ import { ChevronLeft, Send } from 'lucide-react';
 import Link from 'next/link';
 import { ThemeToggle } from '@/components/theme-toggle';
 import { db } from '@/lib/firebase';
-import { collection, query, orderBy, onSnapshot, addDoc, serverTimestamp, doc, setDoc, Timestamp } from 'firebase/firestore';
+import { collection, query, orderBy, onSnapshot, addDoc, serverTimestamp, doc, setDoc, getDoc, Timestamp } from 'firebase/firestore';
 
 export default function ChatPage() {
   const { user, loading } = useAuth();
@@ -24,7 +23,7 @@ export default function ChatPage() {
   
   const [messages, setMessages] = useState<Message[]>([]);
   const [newMessage, setNewMessage] = useState('');
-  const match = matches.find(m => m.id === params.id);
+  const [matchProfile, setMatchProfile] = useState<Profile | null>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
   const scrollToBottom = () => {
@@ -40,6 +39,18 @@ export default function ChatPage() {
       router.push('/');
     }
   }, [user, loading, router]);
+
+  useEffect(() => {
+    const fetchMatchProfile = async () => {
+        if (params.id) {
+            const profileDoc = await getDoc(doc(db, 'profiles', params.id as string));
+            if (profileDoc.exists()) {
+                setMatchProfile({ id: profileDoc.id, ...profileDoc.data() } as Profile);
+            }
+        }
+    };
+    fetchMatchProfile();
+  }, [params.id]);
 
   useEffect(() => {
     if (user && params.id) {
@@ -85,21 +96,12 @@ export default function ChatPage() {
     setNewMessage('');
   };
   
-  if (loading || !user) {
+  if (loading || !user || !matchProfile) {
     return (
       <div className="flex h-screen items-center justify-center bg-background">
         <Loader2 className="h-8 w-8 animate-spin" />
       </div>
     );
-  }
-
-  if (!match) {
-    return (
-        <div className="flex flex-col h-screen items-center justify-center">
-            <p>Match not found.</p>
-            <Button asChild variant="link"><Link href="/matches">Back to matches</Link></Button>
-        </div>
-    )
   }
 
   return (
@@ -110,10 +112,10 @@ export default function ChatPage() {
                 <Link href="/matches"><ChevronLeft className="h-6 w-6" /></Link>
             </Button>
             <Avatar className="h-10 w-10 border-2 border-primary/50">
-            <AvatarImage src={match.userAvatar} alt={match.userName} data-ai-hint="person portrait"/>
-            <AvatarFallback>{match.userName.charAt(0)}</AvatarFallback>
+            <AvatarImage src={matchProfile.images?.[0]} alt={matchProfile.name} data-ai-hint="person portrait"/>
+            <AvatarFallback>{matchProfile.name.charAt(0)}</AvatarFallback>
             </Avatar>
-            <h2 className="font-semibold text-lg">{match.userName}</h2>
+            <h2 className="font-semibold text-lg">{matchProfile.name}</h2>
         </div>
         <ThemeToggle />
       </header>
